@@ -1,0 +1,47 @@
+---
+title: "Week4 Project - Shiny Application and Reproducible Pitch"
+author: "Tom Matsuno"
+date: "2023-02-11"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+```
+
+## My Shiny Application
+
+ This is a Shiny application as the project of "Developing Data Products" course. I developed the shiny web which predicts the Chiba Prefecture COVID-19 new patients after 7day by using neighboring region such as Tokyo, Kanagawa, Saitama and Ibaraki Prefectures.  
+ Choosing the number of today's new cases of neighboring region, the shiny website calculate the number of forecast of Chiba Prefecture 7 days ahead.
+ 
+ The shiny application is on https://tom-mat.shinyapps.io/Week4_Shiny_Application/  
+ 
+ Shiny application (ui.R and server.R) code is in the following site: https://github.com/tommat2022/Developing_Data_Products  
+ 
+## COVID-19 Japan dataset  
+ The column "Chiba_afterweek" shows the new cases of Chiba Prefecture 7 days ahead between 2021/01/01 and 2023/02/3  (dataset: new_case_select).
+```{r dataset, echo=T}
+new_case_select <- read.csv("new_case_select.csv")
+head(new_case_select)
+```
+
+## Neighboring region of Chiba Prefecture
+<img src="Kanto_choice.png" alt="MarineGEO circle logo" style="height: 500px; width:500px;"/>
+
+
+## Multiple linear regression model
+ The current new cases of neighboring region explain 82.8% of the forecast of Chiba
+```{r regression, echo=T, strip.white=T, results='markup'}
+logit <- lm(Chiba_afterweek ~ Tokyo + Kanagawa + Saitama + Ibaraki, data=new_case_select)
+summary(logit)[4]; summary(logit)[9]
+```
+
+## Plot Example:   
+Tokyo and Chiba 7 days ahead
+```{r}
+new_case_select %>% ggplot(aes(x=Tokyo, y=Chiba_afterweek)) + geom_point() + 
+  stat_smooth(method="lm", formula=y~x) + theme_bw()
+```
+
